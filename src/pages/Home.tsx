@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 
 const Home = () => {
     return (
-        <div className="-m-12">
+        <div>
             <section className="text-center space-y-6 bg-linear-to-br from-blue-50 to-white py-16 px-12">
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
                     Türkiye'deki Mülakat
