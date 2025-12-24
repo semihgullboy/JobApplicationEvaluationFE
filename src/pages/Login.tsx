@@ -2,46 +2,50 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Mail, Lock, Eye, EyeOff, Briefcase } from 'lucide-react'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { apiClient, API_ENDPOINTS } from '@/config/api'
 import { useAuth } from '@/store/useAuth'
 import { useRouter } from '@tanstack/react-router'
 import { decodeTokenName } from '@/lib/utils'
+import { AuthValidation, type LoginFormInputs } from '@/lib/validation'
 
 const Login = () => {
     const router = useRouter()
     const { login } = useAuth()
     const [showPassword, setShowPassword] = useState(false)
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState('')
+    const [apiError, setApiError] = useState('')
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setError('')
-        setIsLoading(true)
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<LoginFormInputs>({
+        resolver: zodResolver(AuthValidation.loginSchema),
+    })
+
+    const onSubmit = async (data: LoginFormInputs) => {
+        setApiError('')
 
         try {
             const response = await apiClient.post(API_ENDPOINTS.AUTH_LOGIN, null, {
                 params: {
-                    email,
-                    password,
+                    email: data.email,
+                    password: data.password,
                 },
             })
 
-            const { data, success, message } = response.data
+            const { data: resData, success, message } = response.data
 
-            if (success && data?.token) {
-                const name = decodeTokenName(data.token)
-                login({ email, name }, data.token)
+            if (success && resData?.token) {
+                const name = decodeTokenName(resData.token)
+                login({ email: data.email, name }, resData.token)
                 router.navigate({ to: '/' })
             } else {
-                setError(message || 'Giriş başarısız')
+                setApiError(message || 'Giriş başarısız')
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Giriş başarısız. E-posta ve şifreyi kontrol edin.')
-        } finally {
-            setIsLoading(false)
+            setApiError(err.response?.data?.message || 'Giriş başarısız. E-posta ve şifreyi kontrol edin.')
         }
     }
 
@@ -82,10 +86,10 @@ const Login = () => {
                             <p className="text-gray-600">Devam etmek için hesabınıza giriş yapın</p>
                         </div>
 
-                        <form onSubmit={handleLogin} className="space-y-5">
-                            {error && (
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                            {apiError && (
                                 <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                                    <p className="text-sm text-red-600">{error}</p>
+                                    <p className="text-sm text-red-600">{apiError}</p>
                                 </div>
                             )}
 
@@ -97,11 +101,12 @@ const Login = () => {
                                         type="email"
                                         placeholder="ornek@mail.com"
                                         className="pl-11 h-12"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
+                                        {...register('email')}
                                     />
                                 </div>
+                                {errors.email && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                                )}
                             </div>
 
                             <div>
@@ -112,9 +117,7 @@ const Login = () => {
                                         type={showPassword ? "text" : "password"}
                                         placeholder="******"
                                         className="pl-11 pr-11 h-12"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
+                                        {...register('password')}
                                     />
                                     <button
                                         type="button"
@@ -124,14 +127,17 @@ const Login = () => {
                                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                     </button>
                                 </div>
+                                {errors.password && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+                                )}
                             </div>
 
                             <Button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isSubmitting}
                                 className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
                             >
-                                {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+                                {isSubmitting ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                             </Button>
                         </form>
 

@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import { useAuth } from '@/store/useAuth'
 
-export const API_BASE_URL = 'https://jobapplicationevaluation-b0c5gpaadbahascd.canadacentral-01.azurewebsites.net/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,
