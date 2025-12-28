@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import About from './pages/About'
 import Contact from './pages/Contact'
+import ReviewsTemp from './pages/ReviewsTemp'
 import { RootLayout } from './components/layout/RootLayout'
 
 const rootRoute = createRootRoute({
@@ -47,12 +48,18 @@ const contactRoute = createRoute({
     component: Contact,
 })
 
+const reviewsTempRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/reviews-temp',
+    component: ReviewsTemp,
+})
+
 const notFoundRoute = new NotFoundRoute({
     getParentRoute: () => rootRoute,
     component: () => <div className="p-8 text-center">Sayfa bulunamadı.</div>,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, jobsRoute, loginRoute, registerRoute, aboutRoute, contactRoute])
+const routeTree = rootRoute.addChildren([indexRoute, jobsRoute, loginRoute, registerRoute, aboutRoute, contactRoute, reviewsTempRoute])
 
 export const router = createRouter({
     routeTree,

@@ -40,4 +40,6 @@ export const API_ENDPOINTS = {
     AUTH_LOGIN: '/Auth/login',
     AUTH_LOGOUT: '/Auth/logout',
     AUTH_REGISTER: '/Auth/register',
+    SECTOR_GET_ALL: '/Sector',
+    COMPANY_FILTER: '/Company/Filter',
 }
